@@ -1,0 +1,76 @@
+body {
+  background: #f8fafc;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  color: #2d3748;
+}
+
+textarea {
+  width: 100%;
+  height: 8rem;
+  padding: 8px;
+  font-family: monospace;
+  border-radius: 6px;
+  border: 1.5px solid #bfc7d5;
+  background: #f9fafb;
+  transition: border 0.2s;
+}
+
+textarea:focus {
+  border: 1.5px solid #3182ce;
+  outline: none;
+}
+
+.token-box {
+  background-color: #f0f0f0;
+  margin-top: 1rem;
+  padding: 8px;
+  white-space: pre-wrap;
+  font-family: monospace;
+  border-radius: 4px;
+}
+
+.token-keyword { color: #2563eb; }     /* blue-600 */
+.token-number { color: #16a34a; }      /* green-600 */
+.token-identifier { color: #9333ea; }  /* purple-600 */
+.token-operator { color: #dc2626; }    /* red-600 */
+.token-punctuation { color: #4b5563; } /* gray-600 */
+.token-error { background-color: #fecaca; color: black; }
+
+.syntax-highlight-output {
+  background: #f0f0f0;
+  border-radius: 4px;
+  padding: 8px;
+  font-family: monospace;
+  min-height: 50px;
+  margin-top: 12px;
+  white-space: pre-wrap;
+}
+
+.syntax-highlight-output span {
+  padding: 0 2px;
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.syntax-highlight-output .error {
+  background: #fbb;
+  color: #222;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .syntax-highlight-output {
+    font-size: 14px;
+  }
+  textarea {
+    font-size: 14px;
+  }
+}
+
+.status-valid { color: #16a34a; font-weight: bold; }    /* green */
+.status-invalid { color: #dc2626; font-weight: bold; }  /* red */
