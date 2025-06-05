@@ -1,27 +1,37 @@
 # 🧠 Real-Time Grammar-Based Syntax Highlighter
 
-C benzeri ifadeleri tanıyabilen, gerçek zamanlı çalışan bir **Syntax Highlighter + Bottom-Up Parser**. 
+Gerçek zamanlı çalışan, C benzeri ifadeleri analiz edebilen bir **Syntax Highlighter + Bottom-Up Parser** uygulaması. React ile geliştirilmiş, yazdığınız kodu hem renklendirir hem de sözdizimi açısından geçerli olup olmadığını anında kontrol eder.
 
-## 🚀 Özellikler
+* [📄 Makale](./article.pdf)
+* [🎥 Video](https://www.youtube.com/watch?v=ldsRcJCwo-E)
 
-- Tokenization (kelime türlerine ayırma)
-- Bottom-Up Parsing (Shift-Reduce)
-- Gerçek zamanlı sözdizimi kontrolü
-- Hatalı karakter uyarıları (lexer hatası)
-- React tabanlı arayüz
+---
 
-## 📦 Kurulum
+## Özellikler
+
+* Gerçek zamanlı sözdizimi kontrolü
+* Shift-reduce (bottom-up) parser
+* Tokenization (lexical analiz)
+* Lexer hatalarında uyarı
+* React tabanlı kullanıcı arayüzü
+* Syntax vurgulama (highlighting)
+
+---
+
+## Kurulum
 
 ```bash
 git clone https://github.com/hiddenoob/syntax-highlighter.git
 cd syntax-highlighter
 npm install
 npm run start
-````
+```
 
-> Tarayıcıda `http://localhost:3000` adresinden çalışır.
+> Tarayıcıda `http://localhost:3000` adresinden açılır.
 
-## ✍️ Kullanım
+---
+
+## Kullanım
 
 Kod kutusuna C benzeri bir ifade yazın:
 
@@ -29,63 +39,147 @@ Kod kutusuna C benzeri bir ifade yazın:
 int x = (3 + 2) * 5;
 ```
 
-* ✅ Geçerliyse: "Valid Statement" mesajı çıkar.
-* ❌ Hatalıysa: "Invalid Statement" uyarısı çıkar.
-* 🚫 Tanımsız karakter girerseniz: lexer hatası yazdırılır.
+### Sonuçlar:
 
-## 📸 Ekran Görüntüsü
-
-![GUI](image.png)
-
-## 🔍 Dil Kuralları
-
-Desteklenen dil kuralları:
-
-* `stmt → keyword identifier = expr ;`
-* `expr → number | identifier | ( expr ) | expr operator expr`
-* `stmt → stmt stmt` (çoklu satır desteği)
-
-### Dil ve Dilbilgisi Seçimi
-
-Bu proje, C benzeri temel programlama dilinin alt kümesini analiz etmek için tasarlanmıştır. Desteklenen veri tipleri arasında signed/unsigned integer türleri ve floating point türleri yer alır. Dilin söz dizimi basit atama ve aritmetik ifadeleri içerir.
-
-### Sözdizimi Analiz Süreci
-
-Girilen kaynak kod, önce tokenize edilip belirli token tiplerine ayrılır. Ardından bottom-up (shift-reduce) ayrıştırma yöntemi kullanılarak sentaks doğrulaması yapılır. Yığın (stack) yapısı kullanılarak, dil kuralları temelinde ifadeler azaltılır (reduction).
-
-### Sözcüksel (Lexical) Analiz Detayları
-
-Lexical analizde, anahtar kelimeler (örneğin `int`, `signed int`), sayılar, tanımlayıcılar, operatörler ve noktalama işaretleri regex kullanılarak belirlenir. Boşluk karakterleri token olarak alınmaz. Tanınmayan karakterlerde hata fırlatılır.
-
-### Ayrıştırma Yöntemi
-
-Shift-reduce (bottom-up) parser kullanılır. Yığındaki semboller kurallara göre azaltılır. Örneğin:
-
-* `stmt → keyword identifier operator expr punctuation`
-* `expr → number | identifier | expr operator expr | ( expr )`
-  Parser, dilin temel sözdizimi yapısına uygun ifadeleri tanır ve geçerli ya da geçersiz olarak işaretler.
-
-### Vurgulama Şeması
-
-Token türlerine göre farklı renkler atanır:
-
-* Keyword: Mavi
-* Number: Yeşil
-* Identifier: Mor
-* Operator: Kırmızı
-* Punctuation: Gri
-
-### GUI Uygulaması
-
-React ile basit bir kullanıcı arayüzü hazırlanmıştır. Kullanıcı kod yazarken gerçek zamanlı olarak tokenlar renklendirilir ve sentaks geçerliliği gösterilir. Hata durumları ve validite durumu ekranda anında güncellenir.
+* Geçerliyse: `Valid Statement` mesajı görünür.
+* Sözdizimi hatalıysa: `Invalid Statement` uyarısı verilir.
+* Tanınmayan karakter varsa: lexer hatası görüntülenir.
 
 ---
 
-## 📁 Proje Yapısı
+## Dil Kuralları
+
+### 1. Bildirim (Declaration)
+
+```
+decl → keyword identifier
+```
+
+Örnek:
+
+```c
+int a;
+```
+
+---
+
+### 2. Atama (Assignment)
+
+```
+assign → decl = expr
+```
+
+Örnek:
+
+```c
+int a = 5;
+```
+
+---
+
+### 3. İfade (Expression)
+
+```
+expr → number
+     | identifier
+     | ( expr )
+     | expr operator expr
+```
+
+Örnekler:
+
+```c
+5
+a
+(2 + 3)
+x * (y + 1)
+```
+
+---
+
+### 4. Cümle (Statement)
+
+```
+stmt → decl ;
+     | assign ;
+     | stmt stmt
+```
+
+Örnekler:
+
+```c
+int a;
+int b = 5;
+int c = a + b;
+```
+
+---
+
+## Teknik Detaylar
+
+### Dil ve Dilbilgisi Seçimi
+
+Kullanılan dil, C benzeri temel bir sözdizimine sahiptir. Desteklenen veri tipleri:
+
+* `int`, `signed`, `unsigned`, `float`
+  Dil; değişken bildirimi, atama ve temel aritmetik işlemleri kapsar.
+
+---
+
+### Sözdizimi Analizi
+
+Girdi:
+
+1. **Tokenize** edilir (sözcüksel analiz).
+2. **Shift-reduce** yöntemiyle parse edilir.
+
+Bir yığın (stack) üzerinde çalışılır; tokenlar kurallara göre azaltılarak geçerli/ geçersiz karar verilir.
+
+---
+
+### Sözcüksel Analiz
+
+Tanımlanan token tipleri:
+
+* **Keyword**: `int`, `signed`, `unsigned`, `float`, `long`, `double`
+* **Identifier**: `a`, `my_var`
+* **Number**: `42`, `3.14`
+* **Operator**: `+`, `-`, `*`, `/`, `=`
+* **Punctuation**: `;`, `(`, `)`
+
+Regex kullanılır. Boşluklar yok sayılır. Tanımlanamayan karakterlerde lexer hatası verilir.
+
+---
+
+### Vurgulama (Highlighting)
+
+Token türlerine göre renkler atanır:
+
+| Token Türü      | Renk    |
+| --------------- | ------- |
+| **Keyword**     | Mavi    |
+| **Number**      | Yeşil   |
+| **Identifier**  | Mor     |
+| **Operator**    | Kırmızı |
+| **Punctuation** | Gri     |
+
+---
+
+## GUI Arayüzü
+
+React ile geliştirilen arayüz, yazılan kodu anlık olarak:
+
+* Token'lara ayırır
+* Renklendirir
+* Doğrulama mesajı gösterir (valid / invalid / lexer error)
+
+---
+
+## Proje Yapısı
 
 ```bash
 src/
 ├── App.tsx               # Ana bileşen
-├── SyntaxHighlighter.tsx # Tokenizer + Parser + Highlight
-└── styles.css
+├── SyntaxHighlighter.tsx # Tokenizer + Parser + Highlight bileşeni
+└── styles.css            # Renkler ve tema
 ```
