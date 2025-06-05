@@ -92,24 +92,37 @@ export function bottomUpParse(tokens: Token[]): boolean {
     const stackTypes = getStackTypes();
     const stackLength = stack.length;
 
-    // Kural 1: stmt → keyword identifier operator expr punctuation
-    // Örnek: let x = 10;
-    // Yığın: [..., keyword, identifier, operator, expr, punctuation]
-    if (stackLength >= 5 &&
-        stackTypes[stackLength - 5] === "keyword" &&
-        stackTypes[stackLength - 4] === "expr" && // Burası identifier olarak kalmalı
-        stackTypes[stackLength - 3] === "operator" && stack[stackLength - 3].value === "=" &&
-        stackTypes[stackLength - 2] === "expr" &&
-        stackTypes[stackLength - 1] === "punctuation" && stack[stackLength - 1].value === ";") {
-      stack.splice(stackLength - 5, 5);
+
+    // Kural: decl → keyword identifier
+    if (
+      stackLength >= 2 &&
+      stackTypes[stackLength - 2] === "keyword" &&
+      stackTypes[stackLength - 1] === "identifier"
+    ) {
+      stack.splice(stackLength - 2, 2);
+      stack.push({ type: "decl" });
+      console.log("Reduced: decl <- keyword identifier", getStackTypes().join(" "));
+      return true;
+    }
+
+
+    // Kural: stmt → decl = expr ;
+    if (
+      stackLength >= 4 &&
+      stackTypes[stackLength - 4] === "decl" &&
+      stackTypes[stackLength - 3] === "operator" && stack[stackLength - 3].value === "=" &&
+      stackTypes[stackLength - 2] === "expr" &&
+      stackTypes[stackLength - 1] === "punctuation" && stack[stackLength - 1].value === ";"
+    ) {
+      stack.splice(stackLength - 4, 4);
       stack.push({ type: "stmt" });
-      console.log("Reduced: stmt <- keyword identifier operator expr punctuation", getStackTypes().join(" "));
+      console.log("Reduced: stmt <- decl = expr ;", getStackTypes().join(" "));
       return true;
     }
 
     if(stackLength >= 2 &&
-      stackTypes[stackLength - 1] == 'stmt' &&
-      stackTypes[stackLength - 2] == 'stmt' 
+      stackTypes[stackLength - 1] === 'stmt' &&
+      stackTypes[stackLength - 2] === 'stmt' 
     ){
       stack.splice(stackLength - 2,2)
       stack.push({type : "stmt"});
@@ -142,7 +155,7 @@ export function bottomUpParse(tokens: Token[]): boolean {
     // Yığın: [..., expr, operator, expr]
     if (stackLength >= 3 &&
         stackTypes[stackLength - 3] === "expr" &&
-        stackTypes[stackLength - 2] === "operator" && stack[stackLength - 2].value != "=" &&
+        stackTypes[stackLength - 2] === "operator" && stack[stackLength - 2].value !== "=" &&
         stackTypes[stackLength - 1] === "expr") {
       stack.splice(stackLength - 3, 3); // expr, operator, expr çıkar
       stack.push({ type: "expr" }); // yerine tek bir expr koy
