@@ -93,6 +93,32 @@ export function bottomUpParse(tokens: Token[]): boolean {
     const stackLength = stack.length;
 
 
+    // Kural: stmt -> decl ;
+    if (
+      stackLength >= 2 &&
+      stackTypes[stackLength - 2] === "decl" &&
+      stackTypes[stackLength - 1] === "punctuation" && stack[stackLength - 1].value === ";"
+    ) {
+      stack.splice(stackLength - 2, 2);
+      stack.push({ type: "stmt" });
+      console.log("Reduced: stmt <- decl ;", getStackTypes().join(" "));
+      return true;
+    }
+
+    // Kural: stmt -> assign ;
+    if (
+      stackLength >= 2 &&
+      stackTypes[stackLength - 2] === "assign" &&
+      stackTypes[stackLength - 1] === "punctuation" && stack[stackLength - 1].value === ";"
+    ) {
+      stack.splice(stackLength - 2, 2);
+      stack.push({ type: "stmt" });
+      console.log("Reduced: stmt <- assign ;", getStackTypes().join(" "));
+      return true;
+    }
+
+
+
     // Kural: decl → keyword identifier
     if (
       stackLength >= 2 &&
@@ -106,18 +132,21 @@ export function bottomUpParse(tokens: Token[]): boolean {
     }
 
 
-    // Kural: stmt → decl = expr ;
+    // Kural: assign → decl = expr
     if (
-      stackLength >= 4 &&
-      stackTypes[stackLength - 4] === "decl" &&
-      stackTypes[stackLength - 3] === "operator" && stack[stackLength - 3].value === "=" &&
-      stackTypes[stackLength - 2] === "expr" &&
-      stackTypes[stackLength - 1] === "punctuation" && stack[stackLength - 1].value === ";"
+      stackLength >= 3 &&
+      stackTypes[stackLength - 3] === "decl" &&
+      stackTypes[stackLength - 2] === "operator" && stack[stackLength - 2].value === "=" &&
+      stackTypes[stackLength - 1] === "expr"
     ) {
-      stack.splice(stackLength - 4, 4);
-      stack.push({ type: "stmt" });
-      console.log("Reduced: stmt <- decl = expr ;", getStackTypes().join(" "));
-      return true;
+      // sadece sıradaki token yoksa ya da ';' ise azalt
+      const next = peek();
+      if (!next || next.type === "punctuation" && next.value === ";") {
+        stack.splice(stackLength - 3, 3);
+        stack.push({ type: "assign" });
+        console.log("Reduced: assign <- decl = expr", getStackTypes().join(" "));
+        return true;
+      }
     }
 
     if(stackLength >= 2 &&
